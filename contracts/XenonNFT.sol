@@ -11,20 +11,33 @@ contract LevelNFT is ERC721Royalty{
     Counters.Counter private _tokenIds;
 
     address private treasury;
-
-    uint256 public salePrice;
+    uint256 private salePrice;
+    uint256 private salesStartBlock;
+    uint256 private salesEndBlock;
 
     modifier onlyTreasury {
         require(msg.sender == treasury);
         _;
     }
 
-    constructor(string memory _name, string memory _symbol, uint256 _salePrice, address _treasury) ERC721(_name, _symbol){
-        salePrice = _salePrice;
-        treasury = _treasury;
+    modifier validateSalesTime{
+        require(salesStartBlock <= block.number && salesEndBlock >= block.number);
+        _;
     }
 
-    function buyNFT() public payable returns (uint256){
+    modifier validateAfterSalesTime{
+        require(salesEndBlock <= block.number);
+        _;
+    }
+
+    constructor(string memory _name, string memory _symbol, uint256 _salePrice, address _treasury, uint256 _salesStartBlock, uint256 _salesEndBlock) ERC721(_name, _symbol){
+        salePrice = _salePrice;
+        treasury = _treasury;
+        salesStartBlock = _salesStartBlock;
+        salesEndBlock = _salesEndBlock;
+    }
+
+    function buyNFT() public payable returns (uint256) validateSalesTime{
         require(msg.value >= salePrice);
         uint256 newNFTId = _tokenIds.current();
         super._safeMint(msg.sender, newNFTId);
@@ -33,7 +46,7 @@ contract LevelNFT is ERC721Royalty{
         return newNFTId;
     }
 
-    function claimSalesAmount() public onlyTreasury {
+    function claimSalesAmount() public onlyTreasury validateAfterSalesTime{
         uint256 contractBalance = address(this).balance;
         address payable treasuryAddress = payable(treasury);
         if( contractBalance > 0 ) {
