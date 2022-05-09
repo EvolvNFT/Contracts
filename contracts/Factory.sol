@@ -37,10 +37,10 @@ contract Factory {
         oracle = _oracle;
     }
 
-    function onboardBrand(string memory _brandId, string memory _brandName, address _owner, address _treasury, uint256 _salePrice) public onlyOwner{
+    function onboardBrand(string memory _brandId, string memory _brandName, address _owner, address _treasury, uint256 _salePrice, uint256 _salesStartBlock, uint256 _salesEndBlock) public onlyOwner{
         require(!brands[_brandId].isActive, "Brand already exists");
         console.log("Adding a brand with name '%s' owner '%s' and treasury '%s'", _brandName, _owner, _treasury);
-        address nftAddress = address(new LevelNFT(_brandId, _brandName, _salePrice, _treasury));
+        address nftAddress = address(new LevelNFT(_brandId, _brandName, _salePrice, _treasury, uint256 _salesStartBlock, uint256 _salesEndBlock));
         console.log(nftAddress);
 
         brands[_brandId] = Brand(_brandName, _owner, _treasury, nftAddress, true);
