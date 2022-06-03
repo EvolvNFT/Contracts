@@ -78,17 +78,17 @@ contract Factory {
         nft.levelUpNFT(tokenId);
     }
 
-    function unlockUtility(address nftAddress, uint256 tokenId, string utilitySlug) public onlyOracle{
+    function unlockUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) public onlyOracle{
         IXenonNFT nft = IXenonNFT(nftAddress);
         nft.unlockUtility(tokenId, utilitySlug);
     }
 
-    function levelUpNFTWithUtility(address nftAddress, uint256 tokenId, string utilitySlug) public onlyOracle{
+    function levelUpNFTWithUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) public onlyOracle{
         IXenonNFT nft = IXenonNFT(nftAddress);
         nft.levelUpNFTWithUtility(tokenId, utilitySlug);
     }
 
-    function toggleUtility(address nftAddress, uint256 tokenId, string utilitySlug) public onlyOracle{
+    function toggleUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) public onlyOracle{
         IXenonNFT nft = IXenonNFT(nftAddress);
         nft.toggleUtility(tokenId, utilitySlug);
     }

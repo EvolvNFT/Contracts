@@ -73,7 +73,7 @@ contract LevelNFT is ERC721Royalty {
             salesToken = IERC20(_salesTokenAddress);
     }
 
-    function renameNFT(uint256 tokenId, string nftName) public onlyFactory {
+    function renameNFT(uint256 tokenId, string memory nftName) public onlyFactory {
         nftNames[tokenId] = nftName;
     }
 
@@ -81,16 +81,16 @@ contract LevelNFT is ERC721Royalty {
         nftLevels[tokenId] += 1;
     }
 
-    function unlockUtility(uint256 tokenId, string utilitySlug) public onlyFactory {
+    function unlockUtility(uint256 tokenId, string memory utilitySlug) public onlyFactory {
         utilities[tokenId][utilitySlug] = true;
     }
 
-    function levelUpNFTWithUtility(uint256 tokenId, string utilitySlug) public onlyFactory{
+    function levelUpNFTWithUtility(uint256 tokenId, string memory utilitySlug) public onlyFactory{
         nftLevels[tokenId] += 1;
         utilities[tokenId][utilitySlug] = true;
     }
 
-    function toggleUtility(uint256 tokenId, string utilitySlug) public onlyFactory {
+    function toggleUtility(uint256 tokenId, string memory utilitySlug) public onlyFactory {
         utilities[tokenId][utilitySlug] = utilities[tokenId][utilitySlug] ? false : true;
     }
 
