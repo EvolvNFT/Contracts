@@ -90,7 +90,7 @@ contract LevelNFT is ERC721Royalty {
         utilities[tokenId][utilitySlug] = true;
     }
 
-    function toggleUtility(uint256 tokenId, utilitySlug) public onlyFactory {
+    function toggleUtility(uint256 tokenId, string utilitySlug) public onlyFactory {
         utilities[tokenId][utilitySlug] = utilities[tokenId][utilitySlug] ? false : true;
     }
 

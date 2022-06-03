@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+import "./interfaces/IXenonNFT.sol";
+
 import "./XenonNFT.sol";
 import "hardhat/console.sol";
 
@@ -71,8 +73,24 @@ contract Factory {
             brands[_brandId] = Brand(_brandName, _owner, _treasury, nftAddress, true);
     }
 
-    function levelUpNFT(address nftAddress, uint256 tokenId, string utilitySlug) public onlyOracle{
+    function levelUpNFT(address nftAddress, uint256 tokenId) public onlyOracle{
+        IXenonNFT nft = IXenonNFT(nftAddress);
+        nft.levelUpNFT(tokenId);
+    }
 
+    function unlockUtility(address nftAddress, uint256 tokenId, string utilitySlug) public onlyOracle{
+        IXenonNFT nft = IXenonNFT(nftAddress);
+        nft.unlockUtility(tokenId, utilitySlug);
+    }
+
+    function levelUpNFTWithUtility(address nftAddress, uint256 tokenId, string utilitySlug) public onlyOracle{
+        IXenonNFT nft = IXenonNFT(nftAddress);
+        nft.levelUpNFTWithUtility(tokenId, utilitySlug);
+    }
+
+    function toggleUtility(address nftAddress, uint256 tokenId, string utilitySlug) public onlyOracle{
+        IXenonNFT nft = IXenonNFT(nftAddress);
+        nft.toggleUtility(tokenId, utilitySlug);
     }
 
     function getOracle() public view returns (address) {
