@@ -51,6 +51,12 @@ interface IXenonNFT {
     function buyNFTWithToken() external returns (uint256);
 
     /**
+     * @dev Adds a new collection to the NFT
+     *
+     */
+    function addCollection(uint256 _newCollectionCount, uint256 price, uint256 _salesStartBlock, uint256 _salesEndBlock, bool _isTokenSale, address _salesTokenAddress) external;
+
+    /**
      * @dev Transfers sales ETH to the treasury of the brand
      */
     function claimSalesEthAmount() external;

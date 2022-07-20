@@ -15,6 +15,7 @@ contract LevelNFT is ERC721Royalty {
 
     address private treasury;
     uint256 private salePrice;
+    uint256 private nftCount;
     uint256 private salesStartBlock;
     uint256 private salesEndBlock;
     bool private isTokenSale;
@@ -52,6 +53,7 @@ contract LevelNFT is ERC721Royalty {
         string memory _name,
         string memory _symbol,
         uint256 _salePrice,
+        uint256 _nftCount,
         address _treasury,
         uint256 _salesStartBlock,
         uint256 _salesEndBlock,
@@ -62,6 +64,7 @@ contract LevelNFT is ERC721Royalty {
             require(block.number <= _salesStartBlock && _salesStartBlock < _salesEndBlock, "Sale Timings not applicable    ");
 
             salePrice = _salePrice;
+            nftCount = _nftCount;
             treasury = _treasury;
             salesStartBlock = _salesStartBlock;
             salesEndBlock = _salesEndBlock;
@@ -99,6 +102,8 @@ contract LevelNFT is ERC721Royalty {
         require(msg.value >= salePrice);
 
         uint256 newNFTId = _tokenIds.current();
+        require(newNFTId < nftCount, "No NFT to mint");
+
         _safeMint(msg.sender, newNFTId);
 
         _tokenIds.increment();
@@ -109,12 +114,23 @@ contract LevelNFT is ERC721Royalty {
         require( isTokenSale == true, "Sale is eth-based");
 
         uint256 newNFTId = _tokenIds.current();
+        require(newNFTId < nftCount, "No NFT to mint");
+
         _safeMint(msg.sender, newNFTId);
 
         _tokenIds.increment();
 
         salesToken.transferFrom(msg.sender, address(this), salePrice);
         return newNFTId;
+    }
+
+    function addCollection(uint256 _newCollectionCount, uint256 price, uint256 _salesStartBlock, uint256 _salesEndBlock, bool _isTokenSale, address _salesTokenAddress) public onlyFactory {
+        nftCount += _newCollectionCount;
+        salePrice = price;
+        salesStartBlock = _salesStartBlock;
+        salesEndBlock = _salesEndBlock;
+        isTokenSale = _isTokenSale;
+        salesTokenAddress = _salesTokenAddress;
     }
 
     function claimSalesEthAmount() public validateAfterSalesTime onlyTreasury {
