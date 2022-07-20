@@ -45,6 +45,7 @@ contract Factory {
         string memory _brandName,
         address _owner,
         address _treasury,
+        uint256 _nftCount,
         uint256 _salePrice,
         uint256 _salesStartBlock,
         uint256 _salesEndBlock,
@@ -54,7 +55,7 @@ contract Factory {
             require(!brands[_brandId].isActive, "Brand already exists");
             
             console.log("Adding a brand with name '%s' owner '%s' and treasury '%s'", _brandName, _owner, _treasury);
-            address nftAddress = address(new LevelNFT(_brandId, _brandName, _salePrice, _treasury, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress));
+            address nftAddress = address(new LevelNFT(_brandId, _brandName, _salePrice, _nftCount, _treasury, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress));
             console.log(nftAddress);
 
             brands[_brandId] = Brand(_brandName, _owner, _treasury, nftAddress, true);
@@ -78,6 +79,11 @@ contract Factory {
         nft.levelUpNFT(tokenId);
     }
 
+    function addCollection(address nftAddress,uint256 newCollectionCount, uint256 price, uint256 salesStartBlock, uint256 salesEndBlock, bool isTokenSale, address salesTokenAddress) public onlyOracle{
+        IXenonNFT nft = IXenonNFT(nftAddress);
+        nft.addCollection(newCollectionCount, price, salesStartBlock, salesEndBlock, isTokenSale, salesTokenAddress);
+    }
+
     function unlockUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) public onlyOracle{
         IXenonNFT nft = IXenonNFT(nftAddress);
         nft.unlockUtility(tokenId, utilitySlug);
@@ -91,14 +97,6 @@ contract Factory {
     function toggleUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) public onlyOracle{
         IXenonNFT nft = IXenonNFT(nftAddress);
         nft.toggleUtility(tokenId, utilitySlug);
-    }
-
-    function getOracle() public view returns (address) {
-        return oracle;
-    }
-
-    function getAdmin() public view returns (address) {
-        return owner;
     }
 
     function setOracle(address _oracle) public onlyOwner{
