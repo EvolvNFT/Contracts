@@ -12,6 +12,7 @@ contract Factory {
 
     address private owner;
     address private oracle;
+    address private batchUpdateContract;
     struct Brand {
         string name;
         address owner;
@@ -31,6 +32,11 @@ contract Factory {
 
     modifier onlyOwner {
         require(msg.sender == owner);
+        _;
+    }
+
+    modifier onlyBatchUpdateContract {
+        require(msg.sender == batchUpdateContract);
         _;
     }
 
@@ -89,7 +95,7 @@ contract Factory {
         nft.unlockUtility(tokenId, utilitySlug);
     }
 
-    function levelUpNFTWithUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) public onlyOracle{
+    function levelUpNFTWithUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) public onlyBatchUpdateContract{
         IXenonNFT nft = IXenonNFT(nftAddress);
         nft.levelUpNFTWithUtility(tokenId, utilitySlug);
     }
@@ -107,5 +113,10 @@ contract Factory {
     function changeAdmin(address _admin) public onlyOwner{
         console.log("Changing admin from '%s' to '%s'", owner, _admin);
         owner = _admin;
+    }
+
+    function changeBatchUpdateContract(address _batchUpdateContract) public onlyOwner{
+        console.log("Changing batchUpdateContract from '%s' to '%s'", batchUpdateContract, _batchUpdateContract);
+        batchUpdateContract = _batchUpdateContract;
     }
 }
