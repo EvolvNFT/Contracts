@@ -42,7 +42,7 @@ interface IFactory {
     /**
      * @dev Add collection of the NFT contract
      */
-    function addCollection(address nftAddress,uint256 newCollectionCount, uint256 price, uint256 salesStartBlock, uint256 salesEndBlock, bool isTokenSale, address salesTokenAddress) external;
+    function addCollection(address nftAddress, uint256 newCollectionCount, uint256 price, uint256 salesStartBlock, uint256 salesEndBlock, bool isTokenSale, address salesTokenAddress) external;
 
     /**
      * @dev Unlock the utility of the NFT
