@@ -28,6 +28,11 @@ interface IXenonNFT {
     function levelUpNFTWithUtility(uint256 tokenId, string memory utilitySlug) external;
 
     /**
+     * @dev Adds collection to the brand NFT
+     */
+    function addCollection(uint256 _newCollectionCount, uint256 price, uint256 _salesStartBlock, uint256 _salesEndBlock, bool _isTokenSale, address _salesTokenAddress) external;
+
+    /**
      * @dev Unlocks or locks the utility for a tokenId based on previous state
      */
     function toggleUtility(uint256 tokenId, string memory utilitySlug) external;
