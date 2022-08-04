@@ -26,7 +26,7 @@ interface IFactory {
     /**
      * @dev Onboards a brand with existing NFT
      */
-    function onboardExistingBrand(
+    function onboardBrandWithExistingNFTs(
         string memory _brandId,
         string memory _brandName,
         address _owner,

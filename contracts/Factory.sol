@@ -67,7 +67,7 @@ contract Factory {
             brands[_brandId] = Brand(_brandName, _owner, _treasury, nftAddress, true);
     }
 
-    function onboardExistingBrand(
+    function onboardBrandWithExistingNFTs(
         string memory _brandId,
         string memory _brandName,
         address _owner,
