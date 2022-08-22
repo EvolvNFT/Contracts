@@ -8,29 +8,29 @@ pragma solidity ^0.8.0;
 interface IXenonNFT {
 
     /**
-     * @dev Renames the NFT 'tokenId' with 'nftName'
+     * @dev Renames the NFT '_tokenId' with '_nftName'
      */
-    function renameNFT(uint256 tokenId, string memory nftName) external; 
+    function renameNFT(uint256 _tokenId, string memory _nftName) external; 
 
     /**
-     * @dev Levels up the NFT with the given 'tokenId'
+     * @dev Levels up the NFT with the given '_tokenId'
      */
-    function levelUpNFT(uint256 tokenId) external;
+    function levelUpNFT(uint256 _tokenId) external;
 
     /**
-     * @dev Unlocks the utility of the given 'tokenId' with slug 'utilitySlug'
+     * @dev Unlocks the utility of the given '_tokenId' with slug '_utilitySlug'
      */
-    function unlockUtility(uint256 tokenId, string memory utilitySlug) external;
+    function unlockUtility(uint256 _tokenId, string memory _utilitySlug) external;
 
     /**
      * @dev Levels up the NFT and unlocks the utility at a same time
      */
-    function levelUpNFTWithUtility(uint256 tokenId, string memory utilitySlug) external;
+    function levelUpNFTWithUtility(uint256 _tokenId, string memory _utilitySlug) external;
 
     /**
      * @dev Unlocks or locks the utility for a tokenId based on previous state
      */
-    function toggleUtility(uint256 tokenId, string memory utilitySlug) external;
+    function toggleUtility(uint256 _tokenId, string memory _utilitySlug) external;
 
     /**
      * @dev Transfers NFT to the user by deducting sales price ETH
@@ -54,7 +54,7 @@ interface IXenonNFT {
      * @dev Adds a new collection to the NFT
      *
      */
-    function addCollection(uint256 _newCollectionCount, uint256 price, uint256 _salesStartBlock, uint256 _salesEndBlock, bool _isTokenSale, address _salesTokenAddress) external;
+    function addCollection(uint256 _newCollectionCount, uint256 _price, uint256 _salesStartBlock, uint256 _salesEndBlock, bool _isTokenSale, address _salesTokenAddress) external;
 
     /**
      * @dev Transfers sales ETH to the treasury of the brand
