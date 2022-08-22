@@ -28,33 +28,33 @@ contract BatchUpdate {
         _;
     }
 
-    constructor(address owner_, address oracle_, address factory_) {
-        owner = owner_;
-        oracle = oracle_;
-        factory = factory_;
+    constructor(address _owner, address _oracle, address _factory) {
+        owner = _owner;
+        oracle = _oracle;
+        factory = _factory;
     }
 
-    function isClaimed(uint256 slot, uint256 index) public view returns (bool) {
-        uint256 claimedWordIndex = index / 256;
-        uint256 claimedBitIndex = index % 256;
-        uint256 claimedWord = claimedBitMap[slot][claimedWordIndex];
+    function isClaimed(uint256 _slot, uint256 _index) public view returns (bool) {
+        uint256 claimedWordIndex = _index / 256;
+        uint256 claimedBitIndex = _index % 256;
+        uint256 claimedWord = claimedBitMap[_slot][claimedWordIndex];
         uint256 mask = (1 << claimedBitIndex);
         return claimedWord & mask == mask;
     }
 
-    function _setClaimed(uint256 slot, uint256 index) private {
-        uint256 claimedWordIndex = index / 256;
-        uint256 claimedBitIndex = index % 256;
-        claimedBitMap[slot][claimedWordIndex] = claimedBitMap[slot][claimedWordIndex] | (1 << claimedBitIndex);
+    function _setClaimed(uint256 _slot, uint256 _index) private {
+        uint256 claimedWordIndex = _index / 256;
+        uint256 claimedBitIndex = _index % 256;
+        claimedBitMap[_slot][claimedWordIndex] = claimedBitMap[_slot][claimedWordIndex] | (1 << claimedBitIndex);
     }
 
-    function setMerkleRoot(uint256 slot, bytes32 root) public onlyOracle {
-        merkleRoot[slot] = root;
+    function setMerkleRoot(uint256 _slot, bytes32 _root) public onlyOracle {
+        merkleRoot[_slot] = _root;
     }
 
-    function changeAdmin(address _admin) public onlyOwner{
-        console.log("Changing admin from '%s' to '%s'", owner, _admin);
-        owner = _admin;
+    function changeAdmin(address _owner) public onlyOwner{
+        console.log("Changing admin from '%s' to '%s'", owner, _owner);
+        owner = _owner;
     }
 
     function changeFactory(address _factory) public onlyOwner{
@@ -67,17 +67,17 @@ contract BatchUpdate {
         oracle = _oracle;
     }
 
-    function claim(uint256 slot, uint256 index, address account, address nftAddress, uint256 tokenId, string memory utilitySlug, bytes32[] calldata merkleProof) external {
-        require(!isClaimed(slot, index), 'MerkleDistributor: Utility already claimed.');
+    function claim(uint256 _slot, uint256 _index, address _account, address _nftAddress, uint256 _tokenId, string memory _utilitySlug, bytes32[] calldata _merkleProof) external {
+        require(!isClaimed(_slot, _index), 'MerkleDistributor: Utility already claimed.');
 
         // Verify the merkle proof.
-        bytes32 node = keccak256(abi.encodePacked(index, account, nftAddress, tokenId, utilitySlug));
-        require(MerkleProof.verify(merkleProof, merkleRoot[slot], node), 'MerkleDistributor: Invalid proof.');
+        bytes32 node = keccak256(abi.encodePacked(_index, _account, _nftAddress, _tokenId, _utilitySlug));
+        require(MerkleProof.verify(_merkleProof, merkleRoot[_slot], node), 'MerkleDistributor: Invalid proof.');
 
         // Mark it claimed and upgrade the utility.
-        _setClaimed(slot, index);
+        _setClaimed(_slot, _index);
 
         IFactory factoryContract = IFactory(factory);
-        factoryContract.levelUpNFTWithUtility(nftAddress, tokenId, utilitySlug);
+        factoryContract.levelUpNFTWithUtility(_nftAddress, _tokenId, _utilitySlug);
     }
 }
