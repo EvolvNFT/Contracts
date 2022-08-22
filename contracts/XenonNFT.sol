@@ -91,7 +91,7 @@ contract LevelNFT is ERC721Royalty {
         require(collections[collectionId].salesStartBlock <= block.number && collections[collectionId].salesEndBlock >= block.number, "Not sales time");
         require(msg.value >= collections[collectionId].salePrice, "Amount not sufficient");
 
-        uint256 newNFTId = nextNftOfCollection[collectionId];
+        uint256 newNFTId = nextNftOfCollection[collectionId]+ collections[collectionId].startNftId;
         require(newNFTId < collections[collectionId].startNftId + collections[collectionId].nftCount, "No NFT to mint in the collection");
         
         nextNftOfCollection[collectionId]++;
@@ -104,7 +104,7 @@ contract LevelNFT is ERC721Royalty {
         require( collections[collectionId].isTokenSale == true, "Sale is eth-based");
         require(collections[collectionId].salesStartBlock <= block.number && collections[collectionId].salesEndBlock >= block.number, "Not sales time");
 
-        uint256 newNFTId = nextNftOfCollection[collectionId];
+        uint256 newNFTId = nextNftOfCollection[collectionId] + collections[collectionId].startNftId;
         require(newNFTId < collections[collectionId].startNftId + collections[collectionId].nftCount, "No NFT to mint in the collection");
 
         salesToken = IERC20(collections[collectionId].salesTokenAddress);
