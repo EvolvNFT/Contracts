@@ -117,13 +117,13 @@ contract LevelNFT is ERC721Royalty {
 
     function addCollection(
                 uint256 _newCollectionCount,
-                uint256 price,
+                uint256 _price,
                 uint256 _salesStartBlock,
                 uint256 _salesEndBlock,
                 bool _isTokenSale,
                 address _salesTokenAddress) public onlyFactory {
         uint256 nextCollectionStartId = collections[collection_id - 1].startNftId + collections[collection_id - 1].nftCount;
-        collections[collection_id] = Collection(price, nextCollectionStartId, _newCollectionCount, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress);
+        collections[collection_id] = Collection(_price, nextCollectionStartId, _newCollectionCount, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress);
         collection_id++;
     }
 

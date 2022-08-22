@@ -31,33 +31,33 @@ interface IFactory {
         string memory _brandName,
         address _owner,
         address _treasury,
-        address nftAddress
+        address _nftAddress
     ) external;
 
     /**
      * @dev Level Up the NFT
      */
-    function levelUpNFT(address nftAddress, uint256 tokenId) external;
+    function levelUpNFT(address _nftAddress, uint256 _tokenId) external;
 
     /**
      * @dev Add collection of the NFT contract
      */
-    function addCollection(address nftAddress, uint256 newCollectionCount, uint256 price, uint256 salesStartBlock, uint256 salesEndBlock, bool isTokenSale, address salesTokenAddress) external;
+    function addCollection(address _nftAddress, uint256 _newCollectionCount, uint256 _price, uint256 _salesStartBlock, uint256 _salesEndBlock, bool _isTokenSale, address _salesTokenAddress) external;
 
     /**
      * @dev Unlock the utility of the NFT
      */
-    function unlockUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) external;
+    function unlockUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) external;
 
     /**
      * @dev Level up the NFT and unlock utility
      */
-    function levelUpNFTWithUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) external;
+    function levelUpNFTWithUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) external;
 
     /**
      * @dev Change the utility of the NFT - unlock/lock
      */
-    function toggleUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) external;
+    function toggleUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) external;
 
     /**
      * @dev Set the oracle address of the contract
@@ -65,7 +65,7 @@ interface IFactory {
     function setOracle(address _oracle) external;
 
     /**
-     * @dev Set new admin of contract
+     * @dev Set new owner of contract
      */
-    function changeAdmin(address _admin) external;
+    function changeAdmin(address _owner) external;
 }

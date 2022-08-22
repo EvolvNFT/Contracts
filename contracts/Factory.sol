@@ -81,12 +81,12 @@ contract Factory {
         string memory _brandName,
         address _owner,
         address _treasury,
-        address nftAddress
+        address _nftAddress
         ) public onlyOwner{
             require(!brands[_brandId].isActive, "Brand already exists");
             console.log("Adding a brand with name '%s' owner '%s' and treasury '%s'", _brandName, _owner, _treasury);
 
-            brands[_brandId] = Brand(_brandName, _owner, _treasury, nftAddress, true);
+            brands[_brandId] = Brand(_brandName, _owner, _treasury, _nftAddress, true);
     }
 
     function levelUpNFT(address nftAddress, uint256 tokenId) public onlyOracle{
