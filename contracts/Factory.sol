@@ -13,6 +13,7 @@ contract Factory {
     address private owner;
     address private oracle;
     address private batchUpdateContract;
+
     struct Brand {
         string name;
         address owner;
@@ -22,7 +23,6 @@ contract Factory {
     }
 
     mapping (string => Brand) public brands;
-
     mapping (address => uint256) addressLevels;
 
     modifier onlyOracle {
@@ -61,7 +61,16 @@ contract Factory {
             require(!brands[_brandId].isActive, "Brand already exists");
             
             console.log("Adding a brand with name '%s' owner '%s' and treasury '%s'", _brandName, _owner, _treasury);
-            address nftAddress = address(new LevelNFT(_brandId, _brandName, _salePrice, _nftCount, _treasury, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress));
+            address nftAddress = address(new LevelNFT(
+                                            _brandId,
+                                            _brandName,
+                                            _salePrice,
+                                            _nftCount,
+                                            _treasury,
+                                            _salesStartBlock,
+                                            _salesEndBlock,
+                                            _isTokenSale,
+                                            _salesTokenAddress));
             console.log(nftAddress);
 
             brands[_brandId] = Brand(_brandName, _owner, _treasury, nftAddress, true);
@@ -85,24 +94,31 @@ contract Factory {
         nft.levelUpNFT(tokenId);
     }
 
-    function addCollection(address nftAddress,uint256 newCollectionCount, uint256 price, uint256 salesStartBlock, uint256 salesEndBlock, bool isTokenSale, address salesTokenAddress) public onlyOracle{
-        IXenonNFT nft = IXenonNFT(nftAddress);
-        nft.addCollection(newCollectionCount, price, salesStartBlock, salesEndBlock, isTokenSale, salesTokenAddress);
+    function addCollection(
+                address _nftAddress,
+                uint256 _newCollectionCount,
+                uint256 _price,
+                uint256 _salesStartBlock,
+                uint256 _salesEndBlock,
+                bool _isTokenSale,
+                address _salesTokenAddress) public onlyOracle{
+        IXenonNFT nft = IXenonNFT(_nftAddress);
+        nft.addCollection(_newCollectionCount, _price, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress);
     }
 
-    function unlockUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) public onlyOracle{
-        IXenonNFT nft = IXenonNFT(nftAddress);
-        nft.unlockUtility(tokenId, utilitySlug);
+    function unlockUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) public onlyOracle{
+        IXenonNFT nft = IXenonNFT(_nftAddress);
+        nft.unlockUtility(_tokenId, _utilitySlug);
     }
 
-    function levelUpNFTWithUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) public onlyBatchUpdateContract{
-        IXenonNFT nft = IXenonNFT(nftAddress);
-        nft.levelUpNFTWithUtility(tokenId, utilitySlug);
+    function levelUpNFTWithUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) public onlyBatchUpdateContract{
+        IXenonNFT nft = IXenonNFT(_nftAddress);
+        nft.levelUpNFTWithUtility(_tokenId, _utilitySlug);
     }
 
-    function toggleUtility(address nftAddress, uint256 tokenId, string memory utilitySlug) public onlyOracle{
-        IXenonNFT nft = IXenonNFT(nftAddress);
-        nft.toggleUtility(tokenId, utilitySlug);
+    function toggleUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) public onlyOracle{
+        IXenonNFT nft = IXenonNFT(_nftAddress);
+        nft.toggleUtility(_tokenId, _utilitySlug);
     }
 
     function setOracle(address _oracle) public onlyOwner{
@@ -110,9 +126,9 @@ contract Factory {
         oracle = _oracle;
     }
 
-    function changeAdmin(address _admin) public onlyOwner{
-        console.log("Changing admin from '%s' to '%s'", owner, _admin);
-        owner = _admin;
+    function changeAdmin(address _owner) public onlyOwner{
+        console.log("Changing admin from '%s' to '%s'", owner, _owner);
+        owner = _owner;
     }
 
     function changeBatchUpdateContract(address _batchUpdateContract) public onlyOwner{
