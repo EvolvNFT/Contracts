@@ -11,8 +11,8 @@ interface IFactory {
      * @dev Onboards a new brand to the platform and launches an NFT contract
      */
     function onboardBrand(
-        string memory _brandId,
-        string memory _brandName,
+        bytes32 _brandId,
+        bytes32 _brandName,
         address _owner,
         address _treasury,
         uint256 _nftCount,
@@ -27,8 +27,8 @@ interface IFactory {
      * @dev Onboards a brand with existing NFT
      */
     function onboardBrandWithExistingNFTs(
-        string memory _brandId,
-        string memory _brandName,
+        bytes32 _brandId,
+        bytes32 _brandName,
         address _owner,
         address _treasury,
         address _nftAddress
@@ -47,17 +47,17 @@ interface IFactory {
     /**
      * @dev Unlock the utility of the NFT
      */
-    function unlockUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) external;
+    function unlockUtility(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Level up the NFT and unlock utility
      */
-    function levelUpNFTWithUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) external;
+    function levelUpNFTWithUtility(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Change the utility of the NFT - unlock/lock
      */
-    function toggleUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) external;
+    function toggleUtility(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Set the oracle address of the contract

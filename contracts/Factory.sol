@@ -106,17 +106,17 @@ contract Factory {
         nft.addCollection(_newCollectionCount, _price, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress);
     }
 
-    function unlockUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) public onlyOracle{
+    function unlockUtility(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) public onlyOracle{
         IXenonNFT nft = IXenonNFT(_nftAddress);
         nft.unlockUtility(_tokenId, _utilitySlug);
     }
 
-    function levelUpNFTWithUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) public onlyBatchUpdateContract{
+    function levelUpNFTWithUtility(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) public onlyBatchUpdateContract{
         IXenonNFT nft = IXenonNFT(_nftAddress);
         nft.levelUpNFTWithUtility(_tokenId, _utilitySlug);
     }
 
-    function toggleUtility(address _nftAddress, uint256 _tokenId, string memory _utilitySlug) public onlyOracle{
+    function toggleUtility(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) public onlyOracle{
         IXenonNFT nft = IXenonNFT(_nftAddress);
         nft.toggleUtility(_tokenId, _utilitySlug);
     }

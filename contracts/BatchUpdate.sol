@@ -67,7 +67,7 @@ contract BatchUpdate {
         oracle = _oracle;
     }
 
-    function claim(uint256 _slot, uint256 _index, address _account, address _nftAddress, uint256 _tokenId, string memory _utilitySlug, bytes32[] calldata _merkleProof) external {
+    function claim(uint256 _slot, uint256 _index, address _account, address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug, bytes32[] calldata _merkleProof) external {
         require(!isClaimed(_slot, _index), 'MerkleDistributor: Utility already claimed.');
 
         // Verify the merkle proof.

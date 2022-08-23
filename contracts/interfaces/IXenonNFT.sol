@@ -10,7 +10,7 @@ interface IXenonNFT {
     /**
      * @dev Renames the NFT '_tokenId' with '_nftName'
      */
-    function renameNFT(uint256 _tokenId, string memory _nftName) external; 
+    function renameNFT(uint256 _tokenId, bytes32 _nftName) external; 
 
     /**
      * @dev Levels up the NFT with the given '_tokenId'
@@ -20,17 +20,17 @@ interface IXenonNFT {
     /**
      * @dev Unlocks the utility of the given '_tokenId' with slug '_utilitySlug'
      */
-    function unlockUtility(uint256 _tokenId, string memory _utilitySlug) external;
+    function unlockUtility(uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Levels up the NFT and unlocks the utility at a same time
      */
-    function levelUpNFTWithUtility(uint256 _tokenId, string memory _utilitySlug) external;
+    function levelUpNFTWithUtility(uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Unlocks or locks the utility for a tokenId based on previous state
      */
-    function toggleUtility(uint256 _tokenId, string memory _utilitySlug) external;
+    function toggleUtility(uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Transfers NFT to the user by deducting sales price ETH
