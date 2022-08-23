@@ -25,11 +25,11 @@ contract LevelNFT is ERC721Royalty {
         address salesTokenAddress;
     }
 
-    mapping (uint256 => string) public nftNames;
+    mapping (uint256 => bytes32) public nftNames;
     mapping (uint256 => uint256) public nftLevels;
     mapping (uint256 => Collection) public collections;
     mapping (uint256 => uint256) public nextNftOfCollection;
-    mapping (uint256 => mapping( string => bool)) public utilities;
+    mapping (uint256 => mapping( bytes32 => bool)) public utilities;
 
     IERC20 salesToken;
 
@@ -65,7 +65,7 @@ contract LevelNFT is ERC721Royalty {
             collection_id = 1;
     }
 
-    function renameNFT(uint256 _tokenId, string memory _nftName) public onlyFactory {
+    function renameNFT(uint256 _tokenId, bytes32 _nftName) public onlyFactory {
         nftNames[_tokenId] = _nftName;
     }
 
@@ -73,16 +73,16 @@ contract LevelNFT is ERC721Royalty {
         nftLevels[_tokenId] += 1;
     }
 
-    function unlockUtility(uint256 _tokenId, string memory _utilitySlug) public onlyFactory {
+    function unlockUtility(uint256 _tokenId, bytes32 _utilitySlug) public onlyFactory {
         utilities[_tokenId][_utilitySlug] = true;
     }
 
-    function levelUpNFTWithUtility(uint256 _tokenId, string memory _utilitySlug) public onlyFactory{
+    function levelUpNFTWithUtility(uint256 _tokenId, bytes32 _utilitySlug) public onlyFactory{
         nftLevels[_tokenId] += 1;
         utilities[_tokenId][_utilitySlug] = true;
     }
 
-    function toggleUtility(uint256 _tokenId, string memory _utilitySlug) public onlyFactory {
+    function toggleUtility(uint256 _tokenId, bytes32 _utilitySlug) public onlyFactory {
         utilities[_tokenId][_utilitySlug] = utilities[_tokenId][_utilitySlug] ? false : true;
     }
 
