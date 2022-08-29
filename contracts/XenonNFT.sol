@@ -86,33 +86,29 @@ contract LevelNFT is ERC721Royalty {
         utilities[_tokenId][_utilitySlug] = utilities[_tokenId][_utilitySlug] ? false : true;
     }
 
-    function buyNFTWithEth(uint256 _collectionId) public payable returns (uint256) {
+    function buyNFTWithEth(uint256 _collectionId) public payable {
         require( collections[_collectionId].isTokenSale == false, "Sale is token-based");
-        require(collections[_collectionId].salesStartBlock <= block.number && collections[_collectionId].salesEndBlock >= block.number, "Not sales time");
         require(msg.value >= collections[_collectionId].salePrice, "Amount not sufficient");
 
-        uint256 newNFTId = nextNftOfCollection[_collectionId]+ collections[_collectionId].startNftId;
-        require(newNFTId < collections[_collectionId].startNftId + collections[_collectionId].nftCount, "No NFT to mint in the collection");
-        
-        nextNftOfCollection[_collectionId]++;
-
-        _safeMint(msg.sender, newNFTId);
-        return newNFTId;
+        _buyNFT(_collectionId);
     }
 
-    function buyNFTWithToken(uint256 _collectionId) public returns (uint256) {
+    function buyNFTWithToken(uint256 _collectionId) public {
         require( collections[_collectionId].isTokenSale == true, "Sale is eth-based");
+        
+        _buyNFT(_collectionId);
+        salesToken = IERC20(collections[_collectionId].salesTokenAddress);
+        salesToken.transferFrom(msg.sender, address(this), collections[_collectionId].salePrice);
+    }
+
+    function _buyNFT(uint256 _collectionId) internal virtual {
         require(collections[_collectionId].salesStartBlock <= block.number && collections[_collectionId].salesEndBlock >= block.number, "Not sales time");
 
         uint256 newNFTId = nextNftOfCollection[_collectionId] + collections[_collectionId].startNftId;
         require(newNFTId < collections[_collectionId].startNftId + collections[_collectionId].nftCount, "No NFT to mint in the collection");
 
-        salesToken = IERC20(collections[_collectionId].salesTokenAddress);
         nextNftOfCollection[_collectionId]++;
-
         _safeMint(msg.sender, newNFTId);
-        salesToken.transferFrom(msg.sender, address(this), collections[_collectionId].salePrice);
-        return newNFTId;
     }
 
     function addCollection(
@@ -129,18 +125,18 @@ contract LevelNFT is ERC721Royalty {
 
     function claimSalesEthAmount() public onlyTreasury {
         uint256 contractBalance = address(this).balance;
+        require( contractBalance > 0 , "No ETH accumulated");
         address payable treasuryAddress = payable(treasury);
-        if( contractBalance > 0 ) {
-            treasuryAddress.transfer(contractBalance);
-        }
+
+        (bool sent, bytes memory data) = treasuryAddress.call{value: contractBalance}("");
+        require(sent, "Failed to send Ether");
     }
 
     function claimSalesTokenAmount(address _tokenAddress) public onlyTreasury {
         salesToken = IERC20(_tokenAddress);
 
         uint256 contractBalance = salesToken.balanceOf(address(this));
-        if( contractBalance > 0 ) {
-            salesToken.transfer(msg.sender, contractBalance);
-        }
+        require( contractBalance > 0 , "No Token accumulated");
+        salesToken.transfer(msg.sender, contractBalance);
     }
 }

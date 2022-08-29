@@ -76,6 +76,7 @@ contract Factory {
             brands[_brandId] = Brand(_brandName, _owner, _treasury, nftAddress, true);
     }
 
+    // existing NFTs
     function onboardBrandWithExistingNFTs(
         string memory _brandId,
         string memory _brandName,
@@ -135,4 +136,7 @@ contract Factory {
         console.log("Changing batchUpdateContract from '%s' to '%s'", batchUpdateContract, _batchUpdateContract);
         batchUpdateContract = _batchUpdateContract;
     }
+
+    // Multi sig
+    // Subscription based model for brand
 }
