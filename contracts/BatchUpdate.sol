@@ -78,6 +78,6 @@ contract BatchUpdate {
         _setClaimed(_slot, _index);
 
         IFactory factoryContract = IFactory(factory);
-        factoryContract.levelUpNFTWithUtility(_nftAddress, _tokenId, _utilitySlug);
+        factoryContract.levelUpNFTWithUtilityFactory(_nftAddress, _tokenId, _utilitySlug);
     }
 }

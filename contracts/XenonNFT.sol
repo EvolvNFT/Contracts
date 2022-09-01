@@ -3,12 +3,13 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
-contract LevelNFT is ERC721Royalty {
+import "./interfaces/IXenonNFT.sol";
+
+contract LevelNFT is ERC721Royalty, IXenonNFT {
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -76,28 +77,36 @@ contract LevelNFT is ERC721Royalty {
             salesToken = IERC20(_salesTokenAddress);
     }
 
-    function renameNFT(uint256 tokenId, string memory nftName) public onlyFactory {
-        nftNames[tokenId] = nftName;
+    function renameNFT(uint256 _tokenId, string memory _nftName) public override onlyFactory {
+        nftNames[_tokenId] = _nftName;
+
+        emit NFTRenamed(_tokenId, _nftName);
     }
 
-    function levelUpNFT(uint256 tokenId) public onlyFactory {
-        nftLevels[tokenId] += 1;
+    function levelUpNFT(uint256 _tokenId) public override onlyFactory {
+        nftLevels[_tokenId] += 1;
+
+        emit NFTLeveledUp(_tokenId, nftLevels[_tokenId]);
     }
 
-    function unlockUtility(uint256 tokenId, bytes32 utilitySlug) public onlyFactory {
-        utilities[tokenId][utilitySlug] = true;
+    function unlockUtility(uint256 _tokenId, bytes32 _utilitySlug) public override onlyFactory {
+        utilities[_tokenId][_utilitySlug] = true;
+
+        emit UtilityUnlocked(_tokenId, _utilitySlug);
     }
 
-    function levelUpNFTWithUtility(uint256 tokenId, bytes32 utilitySlug) public onlyFactory{
-        nftLevels[tokenId] += 1;
-        utilities[tokenId][utilitySlug] = true;
+    function levelUpNFTWithUtility(uint256 _tokenId, bytes32 _utilitySlug) public override onlyFactory{
+        nftLevels[_tokenId] += 1;
+        utilities[_tokenId][_utilitySlug] = true;
+
+        emit NFTUtilityLevelUp(_tokenId, nftLevels[_tokenId], _utilitySlug);
     }
 
-    function toggleUtility(uint256 tokenId, bytes32 utilitySlug) public onlyFactory {
+    function toggleUtility(uint256 tokenId, bytes32 utilitySlug) public override onlyFactory {
         utilities[tokenId][utilitySlug] = utilities[tokenId][utilitySlug] ? false : true;
     }
 
-    function buyNFTWithEth() public payable validateSalesTime returns (uint256) {
+    function buyNFTWithEth() public payable override validateSalesTime returns (uint256) {
         require( isTokenSale == false, "Sale is token-based");
         require(msg.value >= salePrice);
 
@@ -107,10 +116,13 @@ contract LevelNFT is ERC721Royalty {
         _safeMint(msg.sender, newNFTId);
 
         _tokenIds.increment();
+
+        emit NFTClaimed(newNFTId, salePrice, msg.sender);
+
         return newNFTId;
     }
 
-    function buyNFTWithToken() public validateSalesTime returns (uint256) {
+    function buyNFTWithToken() public override validateSalesTime returns (uint256) {
         require( isTokenSale == true, "Sale is eth-based");
 
         uint256 newNFTId = _tokenIds.current();
@@ -121,10 +133,13 @@ contract LevelNFT is ERC721Royalty {
         _tokenIds.increment();
 
         salesToken.transferFrom(msg.sender, address(this), salePrice);
+
+        emit NFTClaimed(newNFTId, salePrice, msg.sender);
+
         return newNFTId;
     }
 
-    function claimSalesEthAmount() public validateAfterSalesTime onlyTreasury {
+    function claimSalesEthAmount() public override validateAfterSalesTime onlyTreasury {
         require( isTokenSale == false, "Sale is token-based");
 
         uint256 contractBalance = address(this).balance;
@@ -134,7 +149,7 @@ contract LevelNFT is ERC721Royalty {
         }
     }
 
-    function claimSalesTokenAmount() public onlyTreasury validateAfterSalesTime {
+    function claimSalesTokenAmount() public override onlyTreasury validateAfterSalesTime {
         require( isTokenSale == true, "Sale is eth-based");
 
         uint256 contractBalance = salesToken.balanceOf(address(this));

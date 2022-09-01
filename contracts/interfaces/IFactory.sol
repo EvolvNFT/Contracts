@@ -7,6 +7,24 @@ pragma solidity ^0.8.0;
  */
 interface IFactory {
 
+    event BrandOnboarded(string indexed brandId, string brandName, address owner, address treasury);
+    event CollectionAdded(
+        string indexed brandId,
+        uint256 indexed collectionId,
+        address nftContract,
+        string collectionName,
+        string collectionSymbol,
+        address treasury,
+        uint256 nftCount,
+        uint256 salePrice,
+        uint256 salesStartBlock,
+        uint256 salesEndBlock,
+        bool isTokenSale,
+        address salesTokenAddress);
+    event AdminChanged( address owner);
+    event BatchUpdateContractChanged(address batchUpdateContract);
+    event OracleChanged(address oracle);
+
     /**
      * @dev Onboards a new brand to the platform and launches an NFT contract
      */
@@ -28,7 +46,7 @@ interface IFactory {
     /**
      * @dev Level Up the NFT
      */
-    function levelUpNFT(address _nftAddress, uint256 _tokenId) external;
+    function levelUpNFTFactory(address _nftAddress, uint256 _tokenId) external;
 
     /**
      * @dev Add collection of the NFT contract
@@ -48,25 +66,30 @@ interface IFactory {
     /**
      * @dev Unlock the utility of the NFT
      */
-    function unlockUtility(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) external;
+    function unlockUtilityFactory(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Level up the NFT and unlock utility
      */
-    function levelUpNFTWithUtility(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) external;
+    function levelUpNFTWithUtilityFactory(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Change the utility of the NFT - unlock/lock
      */
-    function toggleUtility(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) external;
+    function toggleUtilityFactory(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Set the oracle address of the contract
      */
-    function setOracle(address _oracle) external;
+    function setOracleFactory(address _oracle) external;
 
     /**
      * @dev Set new owner of contract
      */
-    function changeAdmin(address _owner) external;
+    function changeAdminFactory(address _owner) external;
+
+    /**
+     * @dev Set new batch update contract
+     */
+    function changeBatchUpdateContractFactory(address _batchUpdateContract) external;
 }
