@@ -12,11 +12,17 @@ interface IXenonNFT {
     event UtilityUnlocked(uint256 indexed tokenId, bytes32 utilitySlug);
     event NFTClaimed(uint256 indexed tokenId, uint256 price, address owner);
     event NFTUtilityLevelUp(uint256 indexed _tokenId, uint256 newLevel, bytes32 _utilitySlug);
+    event URIUpdated(string _uri, string _extension);
 
     /**
      * @dev Renames the NFT 'tokenId' with 'nftName'
      */
     function renameNFT(uint256 tokenId, string memory nftName) external; 
+
+    /**
+     * @dev Set Base URI
+     */
+    function setBaseURI(string memory _URI, string memory _ext) external;
 
     /**
      * @dev Levels up the NFT with the given 'tokenId'
