@@ -11,8 +11,10 @@ interface IFactory {
      * @dev Onboards a new brand to the platform and launches an NFT contract
      */
     function onboardBrand(
-        bytes32 _brandId,
-        bytes32 _brandName,
+        string memory _brandId,
+        string memory _brandName,
+        string memory _collectionName,
+        string memory _collectionSymbol,
         address _owner,
         address _treasury,
         uint256 _nftCount,
@@ -24,17 +26,6 @@ interface IFactory {
     ) external; 
 
     /**
-     * @dev Onboards a brand with existing NFT
-     */
-    function onboardBrandWithExistingNFTs(
-        bytes32 _brandId,
-        bytes32 _brandName,
-        address _owner,
-        address _treasury,
-        address _nftAddress
-    ) external;
-
-    /**
      * @dev Level Up the NFT
      */
     function levelUpNFT(address _nftAddress, uint256 _tokenId) external;
@@ -42,7 +33,17 @@ interface IFactory {
     /**
      * @dev Add collection of the NFT contract
      */
-    function addCollection(address _nftAddress, uint256 _newCollectionCount, uint256 _price, uint256 _salesStartBlock, uint256 _salesEndBlock, bool _isTokenSale, address _salesTokenAddress) external;
+    function addCollection(
+        string memory _brandId,
+        string memory _collectionName,
+        string memory _collectionSymbol,
+        address _treasury,
+        uint256 _nftCount,
+        uint256 _salePrice,
+        uint256 _salesStartBlock,
+        uint256 _salesEndBlock,
+        bool _isTokenSale,
+        address _salesTokenAddress) external;
 
     /**
      * @dev Unlock the utility of the NFT

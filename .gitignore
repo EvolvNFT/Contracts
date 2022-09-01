@@ -11,3 +11,5 @@ artifacts
 hardhat.config.js
 
 .DS_Store
+
+Migrator.sol

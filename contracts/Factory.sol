@@ -18,12 +18,12 @@ contract Factory {
         string name;
         address owner;
         address treasury;
-        address nftContract;
         bool isActive;
     }
 
     mapping (string => Brand) public brands;
-    mapping (address => uint256) addressLevels;
+    mapping (string => mapping(uint256 => address)) public collectionContract;
+    mapping (string => uint256) public nextCollection;
 
     modifier onlyOracle {
         require(msg.sender == oracle);
@@ -49,6 +49,8 @@ contract Factory {
     function onboardBrand(
         string memory _brandId,
         string memory _brandName,
+        string memory _collectionName,
+        string memory _collectionSymbol,
         address _owner,
         address _treasury,
         uint256 _nftCount,
@@ -61,50 +63,46 @@ contract Factory {
             require(!brands[_brandId].isActive, "Brand already exists");
             
             console.log("Adding a brand with name '%s' owner '%s' and treasury '%s'", _brandName, _owner, _treasury);
-            address nftAddress = address(new LevelNFT(
-                                            _brandId,
-                                            _brandName,
-                                            _salePrice,
-                                            _nftCount,
-                                            _treasury,
-                                            _salesStartBlock,
-                                            _salesEndBlock,
-                                            _isTokenSale,
-                                            _salesTokenAddress));
-            console.log(nftAddress);
-
-            brands[_brandId] = Brand(_brandName, _owner, _treasury, nftAddress, true);
-    }
-
-    // existing NFTs
-    function onboardBrandWithExistingNFTs(
-        string memory _brandId,
-        string memory _brandName,
-        address _owner,
-        address _treasury,
-        address _nftAddress
-        ) public onlyOwner{
-            require(!brands[_brandId].isActive, "Brand already exists");
-            console.log("Adding a brand with name '%s' owner '%s' and treasury '%s'", _brandName, _owner, _treasury);
-
-            brands[_brandId] = Brand(_brandName, _owner, _treasury, _nftAddress, true);
-    }
-
-    function levelUpNFT(address nftAddress, uint256 tokenId) public onlyOracle{
-        IXenonNFT nft = IXenonNFT(nftAddress);
-        nft.levelUpNFT(tokenId);
+            
+            brands[_brandId] = Brand(_brandName, _owner, _treasury, true);
+            _addCollectionToBrands(_brandId, _collectionName, _collectionSymbol, _treasury, _nftCount,_salePrice, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress);
     }
 
     function addCollection(
-                address _nftAddress,
-                uint256 _newCollectionCount,
-                uint256 _price,
-                uint256 _salesStartBlock,
-                uint256 _salesEndBlock,
-                bool _isTokenSale,
-                address _salesTokenAddress) public onlyOracle{
+        string memory _brandId,
+        string memory _collectionName,
+        string memory _collectionSymbol,
+        address _treasury,
+        uint256 _nftCount,
+        uint256 _salePrice,
+        uint256 _salesStartBlock,
+        uint256 _salesEndBlock,
+        bool _isTokenSale,
+        address _salesTokenAddress) public onlyOracle{
+        _addCollectionToBrands(_brandId, _collectionName, _collectionSymbol, _treasury, _nftCount,_salePrice, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress);
+    }
+
+    function _addCollectionToBrands(
+        string memory _brandId,
+        string memory _collectionName,
+        string memory _collectionSymbol,
+        address _treasury,
+        uint256 _nftCount,
+        uint256 _salePrice,
+        uint256 _salesStartBlock,
+        uint256 _salesEndBlock,
+        bool _isTokenSale,
+        address _salesTokenAddress) internal virtual {
+            address nftAddress = address(new LevelNFT(_collectionName, _collectionSymbol, _salePrice, _nftCount, _treasury, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress));
+            console.log(nftAddress);
+
+            collectionContract[_brandId][nextCollection[_brandId]] = nftAddress;
+            nextCollection[_brandId]++;
+    }
+
+    function levelUpNFT(address _nftAddress, uint256 _tokenId) public onlyOracle{
         IXenonNFT nft = IXenonNFT(_nftAddress);
-        nft.addCollection(_newCollectionCount, _price, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress);
+        nft.levelUpNFT(_tokenId);
     }
 
     function unlockUtility(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) public onlyOracle{
@@ -136,7 +134,4 @@ contract Factory {
         console.log("Changing batchUpdateContract from '%s' to '%s'", batchUpdateContract, _batchUpdateContract);
         batchUpdateContract = _batchUpdateContract;
     }
-
-    // Multi sig
-    // Subscription based model for brand
 }
