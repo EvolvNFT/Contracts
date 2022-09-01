@@ -64,6 +64,11 @@ interface IFactory {
         address _salesTokenAddress) external;
 
     /**
+     * @dev Set Base URI for the NFT
+     */
+    function setBaseURI(address _nftAddress, string memory _URI, string memory _ext) external;
+
+    /**
      * @dev Unlock the utility of the NFT
      */
     function unlockUtilityFactory(address _nftAddress, uint256 _tokenId, bytes32 _utilitySlug) external;

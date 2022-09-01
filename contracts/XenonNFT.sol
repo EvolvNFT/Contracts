@@ -23,6 +23,9 @@ contract LevelNFT is ERC721Royalty, IXenonNFT {
     address private salesTokenAddress;
     address private factory;
 
+    string private URI;
+    string private extension;
+
     mapping (uint256 => string) public nftNames;
     mapping (uint256 => uint256) public nftLevels;
 
@@ -75,6 +78,22 @@ contract LevelNFT is ERC721Royalty, IXenonNFT {
             factory = msg.sender;
 
             salesToken = IERC20(_salesTokenAddress);
+    }
+
+    function setBaseURI(string memory _URI, string memory _ext) public override onlyFactory {
+        URI = _URI;
+        extension = _ext;
+
+        emit URIUpdated(_URI, _ext);
+    }
+
+    function _baseURI() internal view override returns (string memory) {
+        return URI;
+    }
+
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory){
+        string memory baseWithTokenID = super.tokenURI(tokenId);
+        return bytes(baseWithTokenID).length > 0 ? string(abi.encodePacked(baseWithTokenID, extension)) : "";
     }
 
     function renameNFT(uint256 _tokenId, string memory _nftName) public override onlyFactory {

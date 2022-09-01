@@ -105,6 +105,11 @@ contract Factory is IFactory {
             emit CollectionAdded(_brandId, nextCollectionId, nftAddress, _collectionName, _collectionSymbol, _treasury, _nftCount, _salePrice, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress);
     }
 
+    function setBaseURI(address _nftAddress, string memory _URI, string memory _ext) public override onlyOracle{
+        IXenonNFT nft = IXenonNFT(_nftAddress);
+        nft.setBaseURI(_URI, _ext);
+    }
+
     function levelUpNFTFactory(address _nftAddress, uint256 _tokenId) public override onlyOracle{
         IXenonNFT nft = IXenonNFT(_nftAddress);
         nft.levelUpNFT(_tokenId);
