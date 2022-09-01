@@ -7,6 +7,12 @@ pragma solidity ^0.8.0;
  */
 interface IXenonNFT {
 
+    event NFTRenamed(uint256 indexed tokenId, string nftName);
+    event NFTLeveledUp(uint256 indexed tokenId, uint256 newLevel);
+    event UtilityUnlocked(uint256 indexed tokenId, bytes32 utilitySlug);
+    event NFTClaimed(uint256 indexed tokenId, uint256 price, address owner);
+    event NFTUtilityLevelUp(uint256 indexed _tokenId, uint256 newLevel, bytes32 _utilitySlug);
+
     /**
      * @dev Renames the NFT 'tokenId' with 'nftName'
      */
@@ -39,7 +45,7 @@ interface IXenonNFT {
      *
      * - The sales need to be in ETH
      */
-    function buyNFTWithEth() external returns (uint256);
+    function buyNFTWithEth() external payable returns (uint256);
 
     /**
      * @dev Transfers NFT to the user by deducting sales price Token
@@ -49,12 +55,6 @@ interface IXenonNFT {
      * - The sales need to be in token
      */
     function buyNFTWithToken() external returns (uint256);
-
-    /**
-     * @dev Adds a new collection to the NFT
-     *
-     */
-    function addCollection(uint256 _newCollectionCount, uint256 price, uint256 _salesStartBlock, uint256 _salesEndBlock, bool _isTokenSale, address _salesTokenAddress) external;
 
     /**
      * @dev Transfers sales ETH to the treasury of the brand
