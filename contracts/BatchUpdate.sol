@@ -35,17 +35,17 @@ contract BatchUpdate {
     }
 
     function isClaimed(uint256 _slot, uint256 _index) public view returns (bool) {
-        uint256 claimedWordIndex = _index / 256;
-        uint256 claimedBitIndex = _index % 256;
-        uint256 claimedWord = claimedBitMap[_slot][claimedWordIndex];
-        uint256 mask = (1 << claimedBitIndex);
-        return claimedWord & mask == mask;
+        uint256 _claimedWordIndex = _index / 256;
+        uint256 _claimedBitIndex = _index % 256;
+        uint256 _claimedWord = claimedBitMap[_slot][_claimedWordIndex];
+        uint256 _mask = (1 << _claimedBitIndex);
+        return _claimedWord & _mask == _mask;
     }
 
     function _setClaimed(uint256 _slot, uint256 _index) private {
-        uint256 claimedWordIndex = _index / 256;
-        uint256 claimedBitIndex = _index % 256;
-        claimedBitMap[_slot][claimedWordIndex] = claimedBitMap[_slot][claimedWordIndex] | (1 << claimedBitIndex);
+        uint256 _claimedWordIndex = _index / 256;
+        uint256 _claimedBitIndex = _index % 256;
+        claimedBitMap[_slot][_claimedWordIndex] = claimedBitMap[_slot][_claimedWordIndex] | (1 << _claimedBitIndex);
     }
 
     function setMerkleRoot(uint256 _slot, bytes32 _root) public onlyOracle {
@@ -71,8 +71,8 @@ contract BatchUpdate {
         require(!isClaimed(_slot, _index), 'MerkleDistributor: Utility already claimed.');
 
         // Verify the merkle proof.
-        bytes32 node = keccak256(abi.encodePacked(_index, _account, _nftAddress, _tokenId, _utilitySlug));
-        require(MerkleProof.verify(_merkleProof, merkleRoot[_slot], node), 'MerkleDistributor: Invalid proof.');
+        bytes32 _node = keccak256(abi.encodePacked(_index, _account, _nftAddress, _tokenId, _utilitySlug));
+        require(MerkleProof.verify(_merkleProof, merkleRoot[_slot], _node), 'MerkleDistributor: Invalid proof.');
 
         // Mark it claimed and upgrade the utility.
         _setClaimed(_slot, _index);
