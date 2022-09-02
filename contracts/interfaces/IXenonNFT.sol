@@ -11,13 +11,13 @@ interface IXenonNFT {
     event NFTLeveledUp(uint256 indexed tokenId, uint256 newLevel);
     event UtilityUnlocked(uint256 indexed tokenId, bytes32 utilitySlug);
     event NFTClaimed(uint256 indexed tokenId, uint256 price, address owner);
-    event NFTUtilityLevelUp(uint256 indexed _tokenId, uint256 newLevel, bytes32 _utilitySlug);
-    event URIUpdated(string _uri, string _extension);
+    event NFTUtilityLevelUp(uint256 indexed tokenId, uint256 newLevel, bytes32 utilitySlug);
+    event URIUpdated(string uri, string extension);
 
     /**
      * @dev Renames the NFT 'tokenId' with 'nftName'
      */
-    function renameNFT(uint256 tokenId, string memory nftName) external; 
+    function renameNFT(uint256 _tokenId, string memory _nftName) external; 
 
     /**
      * @dev Set Base URI
@@ -27,22 +27,22 @@ interface IXenonNFT {
     /**
      * @dev Levels up the NFT with the given 'tokenId'
      */
-    function levelUpNFT(uint256 tokenId) external;
+    function levelUpNFT(uint256 _tokenId) external;
 
     /**
      * @dev Unlocks the utility of the given 'tokenId' with slug 'utilitySlug'
      */
-    function unlockUtility(uint256 tokenId, bytes32 utilitySlug) external;
+    function unlockUtility(uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Levels up the NFT and unlocks the utility at a same time
      */
-    function levelUpNFTWithUtility(uint256 tokenId, bytes32 utilitySlug) external;
+    function levelUpNFTWithUtility(uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Unlocks or locks the utility for a tokenId based on previous state
      */
-    function toggleUtility(uint256 tokenId, bytes32 utilitySlug) external;
+    function toggleUtility(uint256 _tokenId, bytes32 _utilitySlug) external;
 
     /**
      * @dev Transfers NFT to the user by deducting sales price ETH
@@ -51,7 +51,7 @@ interface IXenonNFT {
      *
      * - The sales need to be in ETH
      */
-    function buyNFTWithEth() external payable returns (uint256);
+    function buyNFTWithEth() external payable;
 
     /**
      * @dev Transfers NFT to the user by deducting sales price Token
@@ -60,7 +60,7 @@ interface IXenonNFT {
      *
      * - The sales need to be in token
      */
-    function buyNFTWithToken() external returns (uint256);
+    function buyNFTWithToken() external;
 
     /**
      * @dev Transfers sales ETH to the treasury of the brand
@@ -70,5 +70,5 @@ interface IXenonNFT {
     /**
      * @dev Transfers sales Token to the treasury of the brand
      */
-    function claimSalesTokenAmount() external;
+    function claimSalesTokenAmount(address _tokenAddress) external;
 }

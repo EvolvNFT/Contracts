@@ -94,15 +94,15 @@ contract Factory is IFactory {
         uint256 _salesEndBlock,
         bool _isTokenSale,
         address _salesTokenAddress) internal virtual {
-            address nftAddress = address(new LevelNFT(_collectionName, _collectionSymbol, _salePrice, _nftCount, _treasury, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress));
-            console.log(nftAddress);
+            address _nftAddress = address(new LevelNFT(_collectionName, _collectionSymbol, _salePrice, _nftCount, _treasury, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress));
+            console.log(_nftAddress);
 
-            uint256 nextCollectionId = nextCollection[_brandId];
+            uint256 _nextCollectionId = nextCollection[_brandId];
 
-            collectionContract[_brandId][nextCollectionId] = nftAddress;
+            collectionContract[_brandId][_nextCollectionId] = _nftAddress;
             nextCollection[_brandId]++;
 
-            emit CollectionAdded(_brandId, nextCollectionId, nftAddress, _collectionName, _collectionSymbol, _treasury, _nftCount, _salePrice, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress);
+            emit CollectionAdded(_brandId, _nextCollectionId, _nftAddress, _collectionName, _collectionSymbol, _treasury, _nftCount, _salePrice, _salesStartBlock, _salesEndBlock, _isTokenSale, _salesTokenAddress);
     }
 
     function setBaseURI(address _nftAddress, string memory _URI, string memory _ext) public override onlyOracle{

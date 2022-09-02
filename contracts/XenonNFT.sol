@@ -91,9 +91,9 @@ contract LevelNFT is ERC721Royalty, IXenonNFT {
         return URI;
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory){
-        string memory baseWithTokenID = super.tokenURI(tokenId);
-        return bytes(baseWithTokenID).length > 0 ? string(abi.encodePacked(baseWithTokenID, extension)) : "";
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory){
+        string memory _baseWithTokenID = super.tokenURI(_tokenId);
+        return bytes(_baseWithTokenID).length > 0 ? string(abi.encodePacked(_baseWithTokenID, extension)) : "";
     }
 
     function renameNFT(uint256 _tokenId, string memory _nftName) public override onlyFactory {
@@ -121,59 +121,50 @@ contract LevelNFT is ERC721Royalty, IXenonNFT {
         emit NFTUtilityLevelUp(_tokenId, nftLevels[_tokenId], _utilitySlug);
     }
 
-    function toggleUtility(uint256 tokenId, bytes32 utilitySlug) public override onlyFactory {
-        utilities[tokenId][utilitySlug] = utilities[tokenId][utilitySlug] ? false : true;
+    function toggleUtility(uint256 _tokenId, bytes32 _utilitySlug) public override onlyFactory {
+        utilities[_tokenId][_utilitySlug] = utilities[_tokenId][_utilitySlug] ? false : true;
     }
 
-    function buyNFTWithEth() public payable override validateSalesTime returns (uint256) {
+    function buyNFTWithEth() public payable override validateSalesTime {
         require( isTokenSale == false, "Sale is token-based");
         require(msg.value >= salePrice);
 
-        uint256 newNFTId = _tokenIds.current();
-        require(newNFTId < nftCount, "No NFT to mint");
-
-        _safeMint(msg.sender, newNFTId);
-
-        _tokenIds.increment();
-
-        emit NFTClaimed(newNFTId, salePrice, msg.sender);
-
-        return newNFTId;
+        _buyNFT();
     }
 
-    function buyNFTWithToken() public override validateSalesTime returns (uint256) {
+    function buyNFTWithToken() public override validateSalesTime {
         require( isTokenSale == true, "Sale is eth-based");
 
-        uint256 newNFTId = _tokenIds.current();
-        require(newNFTId < nftCount, "No NFT to mint");
-
-        _safeMint(msg.sender, newNFTId);
-
-        _tokenIds.increment();
-
+        _buyNFT();
         salesToken.transferFrom(msg.sender, address(this), salePrice);
-
-        emit NFTClaimed(newNFTId, salePrice, msg.sender);
-
-        return newNFTId;
     }
 
-    function claimSalesEthAmount() public override validateAfterSalesTime onlyTreasury {
-        require( isTokenSale == false, "Sale is token-based");
+    function _buyNFT() internal virtual {
+        require(salesStartBlock <= block.number && salesEndBlock >= block.number, "Not sales time");
 
-        uint256 contractBalance = address(this).balance;
-        address payable treasuryAddress = payable(treasury);
-        if( contractBalance > 0 ) {
-            treasuryAddress.transfer(contractBalance);
-        }
+        uint256 _newNFTId = _tokenIds.current();
+        require(_newNFTId < nftCount, "No NFT to mint");
+
+        _tokenIds.increment();
+        _safeMint(msg.sender, _newNFTId);
+
+        emit NFTClaimed(_newNFTId, salePrice, msg.sender);
     }
 
-    function claimSalesTokenAmount() public override onlyTreasury validateAfterSalesTime {
-        require( isTokenSale == true, "Sale is eth-based");
+    function claimSalesEthAmount() public override onlyTreasury {
+        uint256 _contractBalance = address(this).balance;
+        require( _contractBalance > 0 , "No ETH accumulated");
+        address payable _treasuryAddress = payable(treasury);
 
-        uint256 contractBalance = salesToken.balanceOf(address(this));
-        if( contractBalance > 0 ) {
-            salesToken.transfer(msg.sender, contractBalance);
-        }
+        (bool _sent,) = _treasuryAddress.call{value: _contractBalance}("");
+        require(_sent, "Failed to send Ether");
+    }
+
+    function claimSalesTokenAmount(address _tokenAddress) public override onlyTreasury {
+        salesToken = IERC20(_tokenAddress);
+
+        uint256 _contractBalance = salesToken.balanceOf(address(this));
+        require( _contractBalance > 0 , "No Token accumulated");
+        salesToken.transfer(msg.sender, _contractBalance);
     }
 }
