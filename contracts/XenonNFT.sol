@@ -97,24 +97,32 @@ contract LevelNFT is ERC721Royalty, IXenonNFT {
     }
 
     function renameNFT(uint256 _tokenId, string memory _nftName) public override onlyFactory {
+        require(_exists(_tokenId), "ERC721Metadata: URI query for nonexistent token");
+
         nftNames[_tokenId] = _nftName;
 
         emit NFTRenamed(_tokenId, _nftName);
     }
 
     function levelUpNFT(uint256 _tokenId) public override onlyFactory {
+        require(_exists(_tokenId), "ERC721Metadata: URI query for nonexistent token");
+
         nftLevels[_tokenId] += 1;
 
         emit NFTLeveledUp(_tokenId, nftLevels[_tokenId]);
     }
 
     function unlockUtility(uint256 _tokenId, bytes32 _utilitySlug) public override onlyFactory {
+        require(_exists(_tokenId), "ERC721Metadata: URI query for nonexistent token");
+
         utilities[_tokenId][_utilitySlug] = true;
 
         emit UtilityUnlocked(_tokenId, _utilitySlug);
     }
 
     function levelUpNFTWithUtility(uint256 _tokenId, bytes32 _utilitySlug) public override onlyFactory{
+        require(_exists(_tokenId), "ERC721Metadata: URI query for nonexistent token");
+
         nftLevels[_tokenId] += 1;
         utilities[_tokenId][_utilitySlug] = true;
 
@@ -122,6 +130,8 @@ contract LevelNFT is ERC721Royalty, IXenonNFT {
     }
 
     function toggleUtility(uint256 _tokenId, bytes32 _utilitySlug) public override onlyFactory {
+        require(_exists(_tokenId), "ERC721Metadata: URI query for nonexistent token");
+        
         utilities[_tokenId][_utilitySlug] = utilities[_tokenId][_utilitySlug] ? false : true;
     }
 
