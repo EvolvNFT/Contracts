@@ -15,13 +15,6 @@ abstract contract LevelXenonNFT is ERC721Royalty,IXenonNFT {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    address private treasury;
-    uint256 private salePrice;
-    uint256 private nftCount;
-    uint256 private salesStartBlock;
-    uint256 private salesEndBlock;
-    bool private isTokenSale;
-    address private salesTokenAddress;
     address private factory;
 
     string private URI;
@@ -32,53 +25,18 @@ abstract contract LevelXenonNFT is ERC721Royalty,IXenonNFT {
 
     mapping (uint256 => mapping( bytes32 => bool)) public utilities;
 
-    IERC20 salesToken;
-
-    modifier onlyTreasury {
-        require(msg.sender == treasury);
-        _;
-    }
-
     modifier onlyFactory {
         require(msg.sender == factory);
         _;
     }
 
-    modifier validateSalesTime {
-        require(salesStartBlock <= block.number && salesEndBlock >= block.number);
-        _;
-    }
-
-    modifier validateAfterSalesTime{
-        require(salesEndBlock <= block.number);
-        _;
-    }
-
     constructor(
         string memory _name,
-        string memory _symbol,
-        uint256 _salePrice,
-        uint256 _nftCount,
-        address _treasury,
-        uint256 _salesStartBlock,
-        uint256 _salesEndBlock,
-        bool _isTokenSale,
-        address _salesTokenAddress
+        string memory _symbol
         ) ERC721(_name, _symbol){
 
-            require(block.number <= _salesStartBlock && _salesStartBlock < _salesEndBlock, "Sale Timings not applicable");
-
-            salePrice = _salePrice;
             nftCount = _nftCount;
-            treasury = _treasury;
-            salesStartBlock = _salesStartBlock;
-            salesEndBlock = _salesEndBlock;
-            isTokenSale = _isTokenSale;
-            salesTokenAddress = _salesTokenAddress;
-
             factory = msg.sender;
-
-            salesToken = IERC20(_salesTokenAddress);
     }
 
     function setBaseURI(string memory _URI, string memory _ext) public onlyFactory {
