@@ -7,10 +7,10 @@ pragma solidity ^0.8.0;
  */
 interface IFactory {
 
-    event BrandOnboarded(string indexed brandId, string brandName, address owner, address treasury);
+    event BrandOnboarded(string brandId, string brandName, address owner, address treasury);
     event CollectionAdded(
-        string indexed brandId,
-        uint256 indexed collectionId,
+        string brandId,
+        uint256 collectionId,
         address nftContract,
         string collectionName,
         string collectionSymbol,
