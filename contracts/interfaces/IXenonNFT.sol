@@ -7,11 +7,11 @@ pragma solidity ^0.8.0;
  */
 interface IXenonNFT {
 
-    event NFTRenamed(uint256 indexed tokenId, string nftName);
-    event NFTLeveledUp(uint256 indexed tokenId, uint256 newLevel);
-    event UtilityUnlocked(uint256 indexed tokenId, bytes32 utilitySlug);
-    event NFTClaimed(uint256 indexed tokenId, uint256 price, address owner);
-    event NFTUtilityLevelUp(uint256 indexed tokenId, uint256 newLevel, bytes32 utilitySlug);
+    event NFTRenamed(uint256 tokenId, string nftName);
+    event NFTLeveledUp(uint256 tokenId, uint256 newLevel);
+    event UtilityUnlocked(uint256 tokenId, bytes32 utilitySlug);
+    event NFTClaimed(uint256 tokenId, uint256 price, address owner);
+    event NFTUtilityLevelUp(uint256 tokenId, uint256 newLevel, bytes32 utilitySlug);
     event URIUpdated(string uri, string extension);
 
     /**
