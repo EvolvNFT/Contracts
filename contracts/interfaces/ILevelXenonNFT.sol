@@ -18,36 +18,6 @@ interface IXenonNFT {
     event WhiteListAddressAdded(address[] WL);
     event WhiteListAddressRemoved(address[] WL);
 
-    /**
-        @dev tells us the sale type isTOken or isETH
-     */
-
-
-    function getOwnerofNFT() external returns(address owner);
-
-    /**
-        returns factory
-     */
-
-    function getFactory() external returns(address factory);
-
-    /**
-        @dev returns sale end time
-     */
-    
-    function getSaleEndTime() external returns(uint256 endTime);
-
-
-
-    /**
-        @dev tells us the sale price
-     */
-
-    function getSalePrice() external returns(uint256 price);
-
-    /**
-     * @dev Renames the NFT 'tokenId' with 'nftName'
-     */
 
     function renameNFT(uint256 tokenId, string memory nftName) external; 
 
