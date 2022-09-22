@@ -42,7 +42,7 @@ contract MarketPlace {
         
         IXenonNFT nft = IXenonNFT(nftAddress);
 
-        require(msg.sender==nft.ownerOf(tokenID));
+        require(msg.sender==nft.ownerOf(tokenID),"hatt yaar");
         require(NFTs[nftAddress][tokenID].onSale==false,'Already on Sale');
 
         nft.transferFrom(msg.sender, address(this), tokenID);
@@ -60,19 +60,21 @@ contract MarketPlace {
         
         IXenonNFT nft = IXenonNFT(nftAddress);
 
-        require(msg.sender==nft.ownerOf(tokenID));
+        require(msg.sender==NFTs[nftAddress][tokenID].seller);
         require(NFTs[nftAddress][tokenID].onSale==true,'NFT is not on sale');
-
         nft.transferFrom(address(this),msg.sender,tokenID);
 
-        delete NFTs[nftAddress][tokenID];
+        NFTs[nftAddress][tokenID].onSale=false;
     }
 
 
     function bidWithETH(address nftAddress, uint256 tokenID) public payable{
         IERC721 nft = IERC721(nftAddress);
 
-        require(nft.ownerOf(tokenID)!=msg.sender,'owner cannot bid' && NFTs[nftAddress][tokenID].isEthSale==true,'Not ETH sale' && NFTs[nftAddress][tokenID].onSale==true,'Not on Sale' && NFTs[nftAddress][tokenID].endTime>block.timestamp, 'Sale ended');
+        require(nft.ownerOf(tokenID)!=msg.sender,'owner cannot bid');
+        require(NFTs[nftAddress][tokenID].isEthSale==true,'Not ETH sale');
+        require(NFTs[nftAddress][tokenID].onSale==true,'Not on Sale');
+        require(NFTs[nftAddress][tokenID].endTime>block.timestamp, 'Sale ended');
 
             if(NFTs[nftAddress][tokenID].bid==0){
                 require(msg.value>=NFTs[nftAddress][tokenID].minPrice,'value sent is lower than minimum first bid');
@@ -88,7 +90,10 @@ contract MarketPlace {
     function bidWithToken(address nftAddress, uint256 tokenID) public payable{
         IERC721 nft = IERC721(nftAddress);
 
-        require(nft.ownerOf(tokenID)!=msg.sender,'owner cannot bid' && NFTs[nftAddress][tokenID].isEthSale==false,'not a token based sale' && NFTs[nftAddress][tokenID].onSale==true,'Not on Sale' && NFTs[nftAddress][tokenID].endTime>block.timestamp, 'Sale ended');
+        require(nft.ownerOf(tokenID)!=msg.sender,'owner cannot bid');
+        require(NFTs[nftAddress][tokenID].isEthSale==false,'not a token based sale');
+        require(NFTs[nftAddress][tokenID].onSale==true,'Not on Sale');
+        require(NFTs[nftAddress][tokenID].endTime>block.timestamp, 'Sale ended');
 
             IERC20 salesToken = IERC20(NFTs[nftAddress][tokenID].salesTokenAddress);
             
@@ -108,9 +113,6 @@ contract MarketPlace {
 
     function claim(address nftAddress, uint256 tokenID) public noReentrant{
 
-        userBalance[NFTs[nftAddress][tokenID].seller]+=NFTs[nftAddress][tokenID].bid;
-        userBalance[NFTs[nftAddress][tokenID].bidder]-=NFTs[nftAddress][tokenID].bid;
-
         IERC721 nft = IERC721(nftAddress);
 
         require(msg.sender==NFTs[nftAddress][tokenID].bidder,'You are not the hightest bidder');
@@ -122,6 +124,9 @@ contract MarketPlace {
         nft.transferFrom(address(this),NFTs[nftAddress][tokenID].bidder,tokenID);
 
         _transfer(NFTs[nftAddress][tokenID].seller, NFTs[nftAddress][tokenID].bidder, nftAddress, tokenID);
+
+        userBalance[NFTs[nftAddress][tokenID].seller]+=NFTs[nftAddress][tokenID].bid;
+        userBalance[NFTs[nftAddress][tokenID].bidder]-=NFTs[nftAddress][tokenID].bid;
 
     }
 
@@ -162,4 +167,5 @@ contract MarketPlace {
     function getNftBidStatus(address nftAddress, uint256 tokenID) public view returns(address,uint256){
         return (NFTs[nftAddress][tokenID].bidder,NFTs[nftAddress][tokenID].bid);
     }
+
 }
