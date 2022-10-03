@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 import "./interfaces/IXenonNFT.sol";
 
@@ -10,12 +11,18 @@ import "./XenonNFT.sol";
 import "./Factory.sol";
 import "hardhat/console.sol";
 
-contract MarketPlace {
+contract MarketPlace is Pausable {
 
     address payable treasury;
+    address owner;
+    uint256 royalty;
 
-    constructor(address payable _treasury){
+    constructor(address payable _treasury, uint256 _royalty){
+        require(_royalty<100,"Error: Royalty cannot be more than 100");
+
         treasury=_treasury;
+        royalty=_royalty;
+        owner = msg.sender;
     }
 
     mapping(address=>uint256) userBalance;
@@ -41,7 +48,12 @@ contract MarketPlace {
         locked=false;
     }
 
-    function listNFTforSale(address nftAddress, uint256 tokenID, uint256 _endTime, uint256 salePrice, bool _isETHSale, address _salesTokenAddress) public{
+    modifier onlyOwner() {
+        require(msg.sender==owner,"Error: Can only be accessed by Owner");
+        _;
+    }
+
+    function listNFTforSale(address nftAddress, uint256 tokenID, uint256 _endTime, uint256 _salePrice, bool _isETHSale, address _salesTokenAddress) public whenNotPaused{ 
         
         IXenonNFT nft = IXenonNFT(nftAddress);
 
@@ -50,15 +62,12 @@ contract MarketPlace {
 
         nft.transferFrom(msg.sender, address(this), tokenID);
 
-        NFTs[nftAddress][tokenID].salePrice = salePrice;
-        NFTs[nftAddress][tokenID].endTime = _endTime;
-        NFTs[nftAddress][tokenID].owner = payable(msg.sender);
-        NFTs[nftAddress][tokenID].onSale = true;
-        NFTs[nftAddress][tokenID].isEthSale = _isETHSale;
-        NFTs[nftAddress][tokenID].salesTokenAddress = _salesTokenAddress;
+        NFT memory nft1 = NFT(_salePrice, _endTime, payable(msg.sender), payable(0x0000000000000000000000000000000000000000), true, _isETHSale, _salesTokenAddress);
+        NFTs[nftAddress][tokenID] = nft1;
+
     }
 
-    function revertNFTfromSale(address nftAddress, uint256 tokenID) public{
+    function revertNFTfromSale(address nftAddress, uint256 tokenID) public noReentrant whenNotPaused{ 
         
         IXenonNFT nft = IXenonNFT(nftAddress);
 
@@ -71,7 +80,7 @@ contract MarketPlace {
     }
 
 
-    function buyWithETH(address nftAddress, uint256 tokenID) public payable{
+    function buyWithETH(address nftAddress, uint256 tokenID) public payable noReentrant whenNotPaused{
         IXenonNFT nft = IXenonNFT(nftAddress);
 
         require(NFTs[nftAddress][tokenID].owner!=msg.sender,'Error: The owner cannot buy the NFT');
@@ -83,8 +92,8 @@ contract MarketPlace {
 
         NFTs[nftAddress][tokenID].buyer = payable(msg.sender);
 
-        userBalance[NFTs[nftAddress][tokenID].owner]+=((msg.value)*(95))/100;
-        userBalance[treasury]+=((msg.value)*(5))/100;
+        userBalance[NFTs[nftAddress][tokenID].owner]+=((msg.value)*(100-royalty))/100;
+        userBalance[treasury]+=((msg.value)*(royalty))/100;
 
         NFTs[nftAddress][tokenID].onSale=false;
 
@@ -92,7 +101,7 @@ contract MarketPlace {
 
     }
 
-    function buyWithToken(address nftAddress, uint256 tokenID) public{
+    function buyWithToken(address nftAddress, uint256 tokenID) public noReentrant whenNotPaused{ 
         IXenonNFT nft = IXenonNFT(nftAddress);
 
         require(NFTs[nftAddress][tokenID].owner!=msg.sender,'Error: The owner cannot buy the NFT');
@@ -118,7 +127,7 @@ contract MarketPlace {
 
     }
 
-    function withdrawYourETH() public{
+    function withdrawYourETH() public whenNotPaused{
         uint256 balance = userBalance[msg.sender];
         require(balance>0,'Error: There is no ETH to transfer');
 
@@ -130,7 +139,7 @@ contract MarketPlace {
         userBalance[msg.sender]=0;
     }
 
-    function withdrawYourToken(address _salesToken) public{
+    function withdrawYourToken(address _salesToken) public whenNotPaused{
         IERC20 salesToken = IERC20(_salesToken);
 
         uint256 _contractBalance = salesToken.balanceOf(msg.sender);
@@ -141,6 +150,24 @@ contract MarketPlace {
 
     function getBalance() public view returns(uint256){
         return userBalance[msg.sender];
+    }
+
+    function changeRoyalty(uint256 _royalty) public onlyOwner whenNotPaused{
+        require(_royalty<100,'Error: Royalty cannot exceed 100%');
+
+        royalty = _royalty;
+    }
+
+    function changeTreasury(address payable _treasury) public onlyOwner whenNotPaused{
+        treasury = payable(_treasury);
+    }
+
+    function SetPause() public view onlyOwner{
+        _pause;
+    }
+
+    function SetUnpause() public view onlyOwner{
+        _unpause;
     }
 
 }
