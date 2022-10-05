@@ -16,12 +16,14 @@ contract MarketPlace is Pausable {
     address payable treasury;
     address owner;
     uint256 royalty;
+    uint256 royaltyScale;
 
-    constructor(address payable _treasury, uint256 _royalty){
-        require(_royalty<100,"Error: Royalty cannot be more than 100");
+    constructor(address payable _treasury, uint256 _royalty, uint256 _royaltyScale){
+        require((_royalty/_royaltyScale)<100,"Error: Royalty cannot be more than 100");
 
         treasury=_treasury;
         royalty=_royalty;
+        royaltyScale=_royaltyScale;
         owner = msg.sender;
     }
 
@@ -92,8 +94,8 @@ contract MarketPlace is Pausable {
 
         NFTs[nftAddress][tokenID].buyer = payable(msg.sender);
 
-        userBalance[NFTs[nftAddress][tokenID].owner]+=((msg.value)*(100-royalty))/100;
-        userBalance[treasury]+=((msg.value)*(royalty))/100;
+        userBalance[NFTs[nftAddress][tokenID].owner]+=((msg.value)*(100-royalty))/royaltyScale;
+        userBalance[treasury]+=((msg.value)*(royalty))/royaltyScale;
 
         NFTs[nftAddress][tokenID].onSale=false;
 
@@ -113,8 +115,8 @@ contract MarketPlace is Pausable {
             
         require(salesToken.balanceOf(msg.sender)>=NFTs[nftAddress][tokenID].salePrice,'Error: value sent is lower than minimum cost');
             
-        userBalance[NFTs[nftAddress][tokenID].owner]+=(salesToken.balanceOf(address(this))*95)/100;
-        userBalance[treasury]+=(salesToken.balanceOf(address(this))*5)/100;
+        userBalance[NFTs[nftAddress][tokenID].owner]+=((salesToken.balanceOf(address(this))*(100-royalty)))/royaltyScale;
+        userBalance[treasury]+=(salesToken.balanceOf(address(this))*royalty)/royaltyScale;
         userBalance[NFTs[nftAddress][tokenID].buyer]+=salesToken.balanceOf(address(this));
 
         NFTs[nftAddress][tokenID].buyer=payable(msg.sender);
@@ -127,7 +129,7 @@ contract MarketPlace is Pausable {
 
     }
 
-    function withdrawYourETH() public whenNotPaused{
+    function withdrawETH() public whenNotPaused{
         uint256 balance = userBalance[msg.sender];
         require(balance>0,'Error: There is no ETH to transfer');
 
@@ -152,8 +154,8 @@ contract MarketPlace is Pausable {
         return userBalance[msg.sender];
     }
 
-    function changeRoyalty(uint256 _royalty) public onlyOwner whenNotPaused{
-        require(_royalty<100,'Error: Royalty cannot exceed 100%');
+    function changeRoyalty(uint256 _royalty, uint256 _royaltyScale) public onlyOwner whenNotPaused{
+        require((_royalty/_royaltyScale)<100,'Error: Royalty cannot exceed 100%');
 
         royalty = _royalty;
     }
@@ -162,12 +164,11 @@ contract MarketPlace is Pausable {
         treasury = payable(_treasury);
     }
 
-    function SetPause() public view onlyOwner{
-        _pause;
-    }
-
-    function SetUnpause() public view onlyOwner{
-        _unpause;
+    function TogglePause() public view onlyOwner{
+        if(paused()==false)
+            _pause;
+        else
+            _unpause;
     }
 
 }
