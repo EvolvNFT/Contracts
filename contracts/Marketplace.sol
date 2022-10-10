@@ -13,35 +13,34 @@ import "hardhat/console.sol";
 
 contract MarketPlace is Pausable {
 
-    address payable treasury;
-    address owner;
-    uint256 royalty;
-    uint256 royaltyScale;
-
-    constructor(address payable _treasury, uint256 _royalty, uint256 _royaltyScale){
-        require((_royalty/_royaltyScale)<100,"Error: Royalty cannot be more than 100");
-
-        treasury=_treasury;
-        royalty=_royalty;
-        royaltyScale=_royaltyScale;
-        owner = msg.sender;
+    struct Brand {
+        string name;
+        address owner;
+        address payable treasury;
+        bool isActive;
+        uint256 royalty;
+        uint256 royaltyScale;
+        address salesTokenAddress;
     }
-
+    
     mapping(address=>uint256) userBalance;
+    mapping(address=>mapping(uint256=>NFT)) NFTs;
+    mapping(string=>Brand) Brands;
     
     struct NFT{
+        string brandID;
         uint256 salePrice;
         uint256 endTime;
         address payable owner;
         address payable buyer;
         bool onSale;
-        bool isEthSale;
-        address salesTokenAddress;        
+        bool isEthSale;        
     }
 
-    mapping(address=>mapping(uint256=>NFT)) NFTs; //store details of NFT on auction
+     //store details of NFT on auction
 
     bool internal locked;
+    address owner;
 
     modifier noReentrant() {
         require(!locked,"No re-entrancy");
@@ -49,23 +48,44 @@ contract MarketPlace is Pausable {
         _;
         locked=false;
     }
+    
+    modifier onlyBrandOwner(string memory BrandID) {
+        require(msg.sender==Brands[BrandID].owner,"Error: Can only be accessed by the Brand Owner");
+        _;
+    }
 
     modifier onlyOwner() {
         require(msg.sender==owner,"Error: Can only be accessed by Owner");
         _;
     }
 
-    function listNFTforSale(address nftAddress, uint256 tokenID, uint256 _endTime, uint256 _salePrice, bool _isETHSale, address _salesTokenAddress) public whenNotPaused{ 
+    constructor(address _owner) {
+        console.log("Deploying a Factory with owner:", _owner);
+        owner = _owner;
+    }
+
+    function onboardBrand(string memory _brandID, address _owner, address payable _treasury, uint256 _royalty, uint256 _royaltyScale, address _salesTokenAddress) public onlyOwner{
+
+        require(!Brands[_brandID].isActive, "Brand already exists");
+
+        console.log("Adding a brand with name '%s' and treasury '%s'", _brandID, _treasury);
+
+        Brands[_brandID] = Brand(_brandID, _owner, _treasury, true, _royalty, _royaltyScale, _salesTokenAddress);
+
+    }
+
+
+    function listNFTforSale(string memory _brandID, address nftAddress, uint256 tokenID, uint256 _endTime, uint256 _salePrice, bool _isETHSale) public whenNotPaused{ 
         
         IXenonNFT nft = IXenonNFT(nftAddress);
 
         require(msg.sender==nft.ownerOf(tokenID),"Error: You must be the owner of NFT");
         require(NFTs[nftAddress][tokenID].onSale==false,'Error: The NFT is already on Sale');
 
-        nft.transferFrom(msg.sender, address(this), tokenID);
-
-        NFT memory nft1 = NFT(_salePrice, _endTime, payable(msg.sender), payable(0x0000000000000000000000000000000000000000), true, _isETHSale, _salesTokenAddress);
+        NFT memory nft1 = NFT(_brandID, _salePrice, _endTime, payable(msg.sender), payable(0x0000000000000000000000000000000000000000), true, _isETHSale);
         NFTs[nftAddress][tokenID] = nft1;
+
+        nft.transferFrom(msg.sender, address(this), tokenID);
 
     }
 
@@ -76,9 +96,10 @@ contract MarketPlace is Pausable {
         require(msg.sender==NFTs[nftAddress][tokenID].owner,'Error: You must be the owner of NFT');
         require(NFTs[nftAddress][tokenID].onSale==true,'Error: NFT must be on sale to cancel listing');
         
+        NFTs[nftAddress][tokenID].onSale=false;
+
         nft.transferFrom(address(this),msg.sender,tokenID);
 
-        NFTs[nftAddress][tokenID].onSale=false;
     }
 
 
@@ -91,6 +112,10 @@ contract MarketPlace is Pausable {
         require(NFTs[nftAddress][tokenID].endTime>block.timestamp, 'Error: The Sale for NFT has ended');
 
         require(msg.value>=NFTs[nftAddress][tokenID].salePrice,"Error: Does not meet the Sale Price Cost");
+
+        uint256 royalty = Brands[NFTs[nftAddress][tokenID].brandID].royalty;
+        uint256 royaltyScale = Brands[NFTs[nftAddress][tokenID].brandID].royaltyScale;
+        address payable treasury = Brands[NFTs[nftAddress][tokenID].brandID].treasury;
 
         NFTs[nftAddress][tokenID].buyer = payable(msg.sender);
 
@@ -111,7 +136,12 @@ contract MarketPlace is Pausable {
         require(NFTs[nftAddress][tokenID].onSale==true,'Error: NFT is not listed on Sale');
         require(NFTs[nftAddress][tokenID].endTime>block.timestamp, 'Error: The Sale for NFT has ended');
 
-        IERC20 salesToken = IERC20(NFTs[nftAddress][tokenID].salesTokenAddress);
+        uint256 royalty = Brands[NFTs[nftAddress][tokenID].brandID].royalty;
+        uint256 royaltyScale = Brands[NFTs[nftAddress][tokenID].brandID].royaltyScale;
+        address payable treasury = Brands[NFTs[nftAddress][tokenID].brandID].treasury;
+        address salesTokenAddress = Brands[NFTs[nftAddress][tokenID].brandID].salesTokenAddress;
+
+        IERC20 salesToken = IERC20(salesTokenAddress);
             
         require(salesToken.balanceOf(msg.sender)>=NFTs[nftAddress][tokenID].salePrice,'Error: value sent is lower than minimum cost');
             
@@ -128,7 +158,7 @@ contract MarketPlace is Pausable {
         nft.transferFrom(address(this),NFTs[nftAddress][tokenID].buyer,tokenID);
 
     }
-
+//send directly
     function withdrawETH() public whenNotPaused{
         uint256 balance = userBalance[msg.sender];
         require(balance>0,'Error: There is no ETH to transfer');
@@ -141,7 +171,7 @@ contract MarketPlace is Pausable {
         userBalance[msg.sender]=0;
     }
 
-    function withdrawYourToken(address _salesToken) public whenNotPaused{
+    function withdrawToken(address _salesToken) public whenNotPaused{
         IERC20 salesToken = IERC20(_salesToken);
 
         uint256 _contractBalance = salesToken.balanceOf(msg.sender);
@@ -154,14 +184,15 @@ contract MarketPlace is Pausable {
         return userBalance[msg.sender];
     }
 
-    function changeRoyalty(uint256 _royalty, uint256 _royaltyScale) public onlyOwner whenNotPaused{
+    function changeRoyalty(string memory brandID, uint256 _royalty, uint256 _royaltyScale) public onlyBrandOwner(brandID) whenNotPaused{
         require((_royalty/_royaltyScale)<100,'Error: Royalty cannot exceed 100%');
 
-        royalty = _royalty;
+        Brands[brandID].royalty = _royalty;
+        Brands[brandID].royaltyScale = _royaltyScale;
     }
 
-    function changeTreasury(address payable _treasury) public onlyOwner whenNotPaused{
-        treasury = payable(_treasury);
+    function changeTreasury(string memory brandID, address payable _treasury) public onlyBrandOwner(brandID) whenNotPaused{
+        Brands[brandID].treasury = payable(_treasury);
     }
 
     function TogglePause() public view onlyOwner{
