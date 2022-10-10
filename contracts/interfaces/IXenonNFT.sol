@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: MIT
 
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
+
 pragma solidity ^0.8.0;
 
 /**
  * @dev Required interface of an XenonNFT compliant contract.
  */
-interface IXenonNFT {
+interface IXenonNFT is IERC721{
 
     event NFTRenamed(uint256 tokenId, string nftName);
     event NFTLeveledUp(uint256 tokenId, uint256 newLevel);
